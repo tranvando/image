@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<body>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title></title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel="stylesheet" type="text/css" th:href="@{/pagination.css}">
+    <style>
+        h4{
+            font-family: Satisfy;
+            font-size:35px;
+            text-align:center;
+            color:black;
+            /*padding:1%;*/
+        }
+        #gallery{
+            -webkit-column-count:4;
+            -moz-column-count:4;
+            column-count:4;
+
+            -webkit-column-gap:20px;
+            -moz-column-gap:20px;
+            column-gap:20px;
+        }
+        @media (max-width:1200px){
+            #gallery{
+                -webkit-column-count:3;
+                -moz-column-count:3;
+                column-count:3;
+
+                -webkit-column-gap:20px;
+                -moz-column-gap:20px;
+                column-gap:20px;
+            }
+        }
+        @media (max-width:800px){
+            #gallery{
+                -webkit-column-count:2;
+                -moz-column-count:2;
+                column-count:2;
+
+                -webkit-column-gap:20px;
+                -moz-column-gap:20px;
+                column-gap:20px;
+            }
+        }
+        @media (max-width:600px){
+            #gallery{
+                -webkit-column-count:1;
+                -moz-column-count:1;
+                column-count:1;
+            }
+        }
+        #gallery img,#gallery video {
+            width:100%;
+            height:auto;
+            margin: 4% auto;
+            box-shadow:-3px 5px 15px #000;
+            cursor: pointer;
+            -webkit-transition: all 0.2s;
+            transition: all 0.2s;
+        }
+        .modal-img,.model-vid{
+            width:100%;
+            height:auto;
+        }
+        .modal-body{
+            padding:0px;
+        }
+
+    </style>
+
+</head>
+<body>
+<h4>QUẢN LÝ ẢNH</h4><hr>
+<div style="text-align: center">
+    <button style="background-color: blueviolet" id="upload_widget" class="cloudinary-button">Tải ảnh lên</button>
+</div>
+
+<hr>
+
+<div id="gallery" class="container-fluid">
+<!--    <img src="https://source.unsplash.com/1600x1200?female,portrait" class="img-responsive">-->
+<!--    <img src="https://source.unsplash.com/1024x768?female,portrait" class="img-responsive">-->
+<!--    <img src="https://source.unsplash.com/1366x768?female,portrait" class="img-responsive">-->
+<!--    <img src="https://source.unsplash.com/1920x1080?female,portrait" class="img-responsive">-->
+<!--    <img src="https://source.unsplash.com/640x360?female,portrait" class="img-responsive">-->
+<!--    <img src="https://source.unsplash.com/320x640?female,portrait" class="img-responsive">-->
+<!--    <img src="https://source.unsplash.com/1200x1600?female,portrait" class="card img-responsive">-->
+<!--    <img src="https://source.unsplash.com/800x600?female,portrait" class="img-responsive">-->
+<!--    <img src="https://source.unsplash.com/600x800?female,portrait" class="img-responsive">-->
+<!--    <img src="https://source.unsplash.com/400x600?female,portrait" class="img-responsive">-->
+<!--    <img src="https://source.unsplash.com/600x400?female,portrait" class="img-responsive">-->
+<!--    <img src="https://source.unsplash.com/1100x1600?female,portrait" class="img-responsive">-->
+<!--    <img src="https://source.unsplash.com/1600x1100?female,portrait" class="img-responsive">-->
+<!--    <img src="https://source.unsplash.com/992x768?female,portrait" class="img-responsive">-->
+<!--    <img src="https://source.unsplash.com/768x992?female,portrait" class="img-responsive">-->
+<!--    <img src="https://source.unsplash.com/768x992?female,portrait" class="img-responsive">-->
+<!--    <img src="https://source.unsplash.com/600x400?female,portrait" class="img-responsive">-->
+
+</div>
+<div style="margin-top: 8px">
+    <div style="display: flex; align-items: center;justify-content: center;" id="pagination-container"></div>
+</div>
+<hr>
+<p style="text-align: center">Design by <b>Trần Văn Độ</b></p>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+<!--<script th:src="@{/bootstrap.min.js}" type="text/javascript"></script>-->
+<script th:src="@{/pagination.min.js}" type="text/javascript"></script>
+
+
+<script th:inline="javascript">
+    $(document).ready(function(){
+        // $.ajax({
+        //     type : "GET",
+        //     contentType : "application/json",
+        //     url : "/getImage",
+        //     dataType : 'json',
+        //     // timeout : 100000,
+        //     success : function(data) {
+        //         var html = loadTable(data.resources);
+        //         $('#gallery').html(html);
+        //     },
+        //     error : function(e) {
+        //         console.log("ERROR: ", e);
+        //     }
+        // });
+        page(1);
+    })
+
+
+    function page(curPage){
+        $('#pagination-container').pagination({
+            dataSource: function(done) {
+                $.ajax({
+                    type: 'GET',
+                    contentType : "application/json",
+                    url: '/getImage',
+                    dataType : 'json',
+                    success: function(response) {
+                        done(response.resources);
+                    }
+                });
+            },
+            pageSize: 8,
+            pageNumber:curPage,
+            pageRage:1,
+            autoHidePrevious: true,
+            autoHideNext: true,
+            hideWhenLessThanOnePage:true,
+            callback: function(data, pagination) {
+                var html = loadTable(data);
+                $('#gallery').html(html);
+            }
+        })
+    }
+
+    function loadTable(data){
+        var html = '';
+        $.each(data, function(index, item){
+            html +='<img src="'+item.secure_url+'" class="img-responsive">';
+        });
+        return html;
+    }
+
+
+
+    var myWidget = cloudinary.createUploadWidget({
+            cloudName: 'dzajltfix',
+            uploadPreset: 'tranvando'}, (error, result) => {
+            if (!error && result && result.event === "success") {
+                console.log('Done! Here is the image info: ', result.info);
+            }
+        }
+    )
+
+    document.getElementById("upload_widget").addEventListener("click", function(){
+        myWidget.open();
+    }, false);
+</script>
+</body>
+</html>
