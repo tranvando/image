@@ -11,13 +11,13 @@
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel="stylesheet" type="text/css" th:href="@{/pagination.css}">
     <style>
-        h4{
-            font-family: Satisfy;
-            font-size:35px;
-            text-align:center;
-            color:black;
-            /*padding:1%;*/
-        }
+        /*p{*/
+        /*    font-family: Satisfy;*/
+        /*    font-size:30px;*/
+        /*    text-align:center;*/
+        /*    color:black;*/
+        /*    !*padding:1%;*!*/
+        /*}*/
         #gallery{
             -webkit-column-count:4;
             -moz-column-count:4;
@@ -73,37 +73,67 @@
             padding:0px;
         }
 
+        /* slide 000000000000000000000000000000000 */
+        .slide-content {
+            margin: 8px;
+            width: 300px;
+            height: 200px;
+            background-color: lightgray;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        .slide img {
+            width: 100%;
+        }
+        .slid-er {
+            height: 216px; /* slide-content height + 2*margin */
+            margin: auto;
+            overflow: hidden;
+            width: 100%;
+        }
+        .slid-er .slides {
+            display: flex;
+        }
+        .slid-er .slide {
+            width: 308px; /* slide-content width + margin */
+        }
+
+        .thumb {
+            width: 300px;
+            height: 200px;
+            background-color: #3e3e3e;
+            background-image: none;
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover;
+        }
     </style>
 
 </head>
 <body>
-<h4>QUẢN LÝ ẢNH</h4><hr>
+<h2 style="text-align: center">a</h2><hr>
 <div style="text-align: center">
     <button style="background-color: blueviolet" id="upload_widget" class="cloudinary-button">Tải ảnh lên</button>
 </div>
 
 <hr>
 
+<!--<div class="container">-->
+<!--    <div class="slid-er">-->
+<!--        <div class="slides" id="slides">-->
+
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+
+<!--list image-->
 <div id="gallery" class="container-fluid">
-<!--    <img src="https://source.unsplash.com/1600x1200?female,portrait" class="img-responsive">-->
-<!--    <img src="https://source.unsplash.com/1024x768?female,portrait" class="img-responsive">-->
-<!--    <img src="https://source.unsplash.com/1366x768?female,portrait" class="img-responsive">-->
-<!--    <img src="https://source.unsplash.com/1920x1080?female,portrait" class="img-responsive">-->
-<!--    <img src="https://source.unsplash.com/640x360?female,portrait" class="img-responsive">-->
-<!--    <img src="https://source.unsplash.com/320x640?female,portrait" class="img-responsive">-->
-<!--    <img src="https://source.unsplash.com/1200x1600?female,portrait" class="card img-responsive">-->
-<!--    <img src="https://source.unsplash.com/800x600?female,portrait" class="img-responsive">-->
-<!--    <img src="https://source.unsplash.com/600x800?female,portrait" class="img-responsive">-->
-<!--    <img src="https://source.unsplash.com/400x600?female,portrait" class="img-responsive">-->
-<!--    <img src="https://source.unsplash.com/600x400?female,portrait" class="img-responsive">-->
-<!--    <img src="https://source.unsplash.com/1100x1600?female,portrait" class="img-responsive">-->
-<!--    <img src="https://source.unsplash.com/1600x1100?female,portrait" class="img-responsive">-->
-<!--    <img src="https://source.unsplash.com/992x768?female,portrait" class="img-responsive">-->
-<!--    <img src="https://source.unsplash.com/768x992?female,portrait" class="img-responsive">-->
-<!--    <img src="https://source.unsplash.com/768x992?female,portrait" class="img-responsive">-->
-<!--    <img src="https://source.unsplash.com/600x400?female,portrait" class="img-responsive">-->
 
 </div>
+
+
 <div style="margin-top: 8px">
     <div style="display: flex; align-items: center;justify-content: center;" id="pagination-container"></div>
 </div>
@@ -126,16 +156,16 @@
         //     dataType : 'json',
         //     // timeout : 100000,
         //     success : function(data) {
-        //         var html = loadTable(data.resources);
-        //         $('#gallery').html(html);
+        //         var html = loadSlide(data.resources);
+        //         $('#slides').html(html);
         //     },
         //     error : function(e) {
         //         console.log("ERROR: ", e);
         //     }
         // });
+
         page(1);
     })
-
 
     function page(curPage){
         $('#pagination-container').pagination({
@@ -166,25 +196,69 @@
     function loadTable(data){
         var html = '';
         $.each(data, function(index, item){
-            html +='<img src="'+item.secure_url+'" class="img-responsive">';
+            if(item.resource_type=='image')
+                html +='<a href="'+item.secure_url+'"><img src="'+item.secure_url+'" class="img-responsive"></a>';
+            if(item.resource_type=='video'){
+                html +=
+                    '<a><video class="vid" controls>'+
+                        '<source src="'+item.secure_url+'" type="video/mp4"></source>'+
+                    '</video></a>';
+            }
         });
         return html;
     }
 
-
+    // function loadSlide(data){
+    //     var html = '';
+    //     $.each(data, function(index, item){
+    //         html +=
+    //             '<div class="slide">'+
+    //                 '<div class="slide-content">'+
+    //                     '<div class="thumb" style="background-image:url('+item.secure_url+')"></div>'+
+    //                 '</div>'+
+    //             '</div>';
+    //     });
+    //     return html;
+    // }
 
     var myWidget = cloudinary.createUploadWidget({
             cloudName: 'dzajltfix',
-            uploadPreset: 'tranvando'}, (error, result) => {
+            uploadPreset: 'tranvando',
+        }, (error, result) => {
             if (!error && result && result.event === "success") {
                 console.log('Done! Here is the image info: ', result.info);
             }
-        }
+            }
+
     )
 
     document.getElementById("upload_widget").addEventListener("click", function(){
         myWidget.open();
     }, false);
+
+
+
+    // chạy slide
+    // let xOffset = 0;
+    // let isMouseIn = false;
+    // const slides = document.getElementById("slides");
+    //
+    // setInterval(translate, 0);
+    //
+    // function translate() {
+    //     let offsetIncrementor = isMouseIn ? 0.05 : 0.2;
+    //     if (xOffset >= 258 * 7) xOffset = 0;
+    //     else xOffset = xOffset + offsetIncrementor;
+    //     slides.style.transform = "translateX(-" + xOffset + "px)";
+    // }
+    //
+    // slides.addEventListener("mouseover", function (event) {
+    //     isMouseIn = true;
+    // });
+    //
+    // slides.addEventListener("mouseout", function (event) {
+    //     isMouseIn = false;
+    // });
 </script>
 </body>
 </html>
