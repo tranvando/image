@@ -1,8 +1,9 @@
-package com.example.demo;
+package com.example.demo.controller;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.ObjectUtils;
+import com.example.demo.dto.Student;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,4 +61,51 @@ public class ImageController {
         result.put("resources",listImages);
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/getImage1")
+    public ResponseEntity<List<Student>> readXml() {
+        List<Student> listStudents = new ArrayList<>();
+        Student student = null;
+
+        try {
+            // đọc file input1.xml
+            File inputFile = new File("input.xml");
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(inputFile);
+            doc.getDocumentElement().normalize();
+
+            // in phần tử gốc ra màn hình
+//            System.out.println("Phần tử gốc:"
+//                    + doc.getDocumentElement().getNodeName());
+
+            // đọc tất cả các phần tử có tên thẻ là "student"
+            NodeList nodeListStudent = doc.getElementsByTagName("student");
+//            NodeList a = doc.getChildNodes();
+            System.out.println(nodeListStudent);
+
+            // duyệt các phần tử demo.student
+            for (int i = 0; i < nodeListStudent.getLength(); i++) {
+                // tạo đối tượng demo.student
+                student = new Student();
+                // đọc các thuộc tính của demo.student
+                Node nNode = nodeListStudent.item(i);
+                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElement = (Element) nNode;
+                    student.setId(eElement.getAttribute("id"));
+                    student.setFirstName(eElement.getElementsByTagName("firstname").item(0).getTextContent());
+                    student.setLastName(eElement.getElementsByTagName("lastname").item(0).getTextContent());
+                    student.setMarks(eElement.getElementsByTagName("marks").item(0).getTextContent());
+                }
+                // add đối tượng demo.student vào listStudents
+                listStudents.add(student);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok(listStudents);
+    }
+
+
+
 }
